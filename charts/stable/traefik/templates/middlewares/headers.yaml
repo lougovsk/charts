@@ -1,0 +1,75 @@
+{{- $values := .Values }}
+{{- $namespace := ( printf "ix-%s" .Release.Name ) }}
+{{- if or ( not .Values.ingressClass.enabled ) ( and ( .Values.ingressClass.enabled ) ( .Values.ingressClass.isDefaultClass ) ) }}
+{{- $namespace = "default" }}
+{{- end }}
+
+{{- if .Values.middlewares.headers }}
+{{ range $index, $middlewareData := .Values.middlewares.headers }}
+
+---
+# Declaring the user list
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ $middlewareData.name }}
+  namespace: {{ $namespace }}
+spec:
+  headers:
+    {{- if $middlewareData.customRequestHeaders }}
+    customRequestHeaders:
+      {{- range $header, $value := $middlewareData.customRequestHeaders }}
+        {{ $header }}: {{ $value }}
+      {{- end }}
+    {{- end }}
+    {{- if $middlewareData.customResponseHeaders }}
+    customResponseHeaders:
+      {{- range $header, $value := $middlewareData.customResponseHeaders }}
+        {{ $header }}: {{ $value }}
+      {{- end }}
+    {{- end }}
+    {{- if $middlewareData.accessControlAllowHeaders }}
+    accessControlAllowHeaders:
+      {{- range $value := $middlewareData.accessControlAllowHeaders }}
+        - {{ $value }}
+      {{- end }}
+    {{- end }}
+    {{- if $middlewareData.accessControlAllowMethods }}
+    accessControlAllowMethods:
+      {{- range $header, $value := $middlewareData.accessControlAllowMethods }}
+        - {{ $value }}
+      {{- end }}
+    {{- end }}
+    {{- if $middlewareData.accessControlAllowOriginList }}
+    accessControlAllowOriginList:
+      {{- range $header, $value := $middlewareData.accessControlAllowOriginList }}
+        - {{ $value }}
+      {{- end }}
+    {{- end }}
+    {{- if $middlewareData.accessControlMaxAge }}
+    accessControlMaxAge: {{ $middlewareData.accessControlMaxAge }}
+    {{- end }}
+    {{- if $middlewareData.browserXssFilter }}
+    browserXssFilter: {{ $middlewareData.browserXssFilter }}
+    {{- end }}
+    {{- if $middlewareData.contentTypeNosniff }}
+    contentTypeNosniff: {{ $middlewareData.contentTypeNosniff }}
+    {{- end }}
+    {{- if $middlewareData.forceSTSHeader }}
+    forceSTSHeader: {{ $middlewareData.forceSTSHeader }}
+    {{- end }}
+    {{- if $middlewareData.referrerPolicy }}
+    referrerPolicy: {{ $middlewareData.referrerPolicy }}
+    {{- end }}
+    {{- if $middlewareData.sslForceHost }}
+    sslForceHost: {{ $middlewareData.sslForceHost }}
+    {{- end }}
+    {{- if $middlewareData.sslRedirect }}
+    sslRedirect: {{ $middlewareData.sslRedirect }}
+    {{- end }}
+    {{- if $middlewareData.stsSeconds }}
+    stsSeconds: {{ $middlewareData.stsSeconds }}
+    {{- end }}
+    
+{{ end }}
+{{ end }}
